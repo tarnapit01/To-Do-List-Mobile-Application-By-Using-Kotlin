@@ -12,13 +12,14 @@
         android:layout_width="190dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="15dp"
+        android:layout_marginTop="52dp"
         android:layout_marginEnd="16dp"
         android:gravity="center"
         android:text="Add"
         android:textSize="30sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"></TextView>
 
@@ -31,12 +32,12 @@
         android:layout_marginBottom="635dp"
         android:contentDescription="This is A ฺBack button"
         android:text="Back"
-        android:textStyle="bold"
         android:textSize="15sp"
+        android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.297">
+        app:layout_constraintVertical_bias="0.936">
 
     </Button>
 
@@ -82,17 +83,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
-
-        <Button
-            android:id="@+id/btnDaleteAdd"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:backgroundTint="@color/white"
-            android:contentDescription="This is A Delete button"
-            android:text="Delete"
-            android:textColor="@color/red"
-            android:textSize="25sp"
-            android:textStyle="bold"></Button>
 
         <Button
             android:id="@+id/btnSaveAdd"

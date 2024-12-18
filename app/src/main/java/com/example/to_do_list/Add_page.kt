@@ -12,7 +12,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.example.to_do_list.database_model.AddTask
+
+import com.example.to_do_list.database_model.ToDo_Model
 import com.google.android.gms.tasks.Task
 import com.google.firebase.Firebase
 import com.google.firebase.database.DatabaseReference
@@ -31,7 +32,14 @@ class Add_page : AppCompatActivity() {
         database = FirebaseDatabase.getInstance().reference.child("AddTask")
         init()
         btnBack!!.setOnClickListener {
-            var intent = Intent(this, MainActivity::class.java)
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
+            finish()
+        }
+
+        btnAdd!!.setOnClickListener {
+            insertTask()
+            val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
             finish()
         }
@@ -39,35 +47,34 @@ class Add_page : AppCompatActivity() {
 
 
 
-        btnAdd!!.setOnClickListener {
-            val taskDescription = edtTask?.text.toString()
-            val time = edtTime?.text.toString()
-            if (taskDescription.isNotEmpty()){
-                createTask(taskDescription,time)
-            }else{
-                edtTask!!.setError("Task Can't be Empty")
-            }
-        }
 
 
     }
-
     // Create (Add) a task to Firebase
-    private fun createTask(description: String,time:String) {
-        val taskId = database?.push()?.key // Generate unique key
-        val task = AddTask(taskId,description,time)
+    private fun insertTask(){
+        val taskDes = edtTask!!.text.toString()
+        val time = edtTime!!.text.toString()
 
-        taskId?.let {
-            database!!.child(it).setValue(task).addOnSuccessListener {
-                Toast.makeText(this, "Task added successfully", Toast.LENGTH_SHORT).show()
-                edtTask?.text?.clear()
-            }.addOnFailureListener { error ->
-                Toast.makeText(this, "Error: ${error.message}", Toast.LENGTH_SHORT).show()
+        if (taskDes.isEmpty()){
+            edtTask!!.error = ("Please input task")
+        }
+        if(time.isEmpty()){
+            edtTime!!.error = ("Please input time")
+        }
+
+        val taskId = database?.push()?.key
+        val task = ToDo_Model(id = taskId,task = taskDes,Time = time)
+
+        taskId?.let { database!!.child(it).setValue(task)
+            .addOnCompleteListener{
+                edtTask!!.text.clear()
+                edtTime!!.text.clear()
             }
         }
+
     }
 
-    fun init(){
+    private fun init(){
         btnBack = findViewById(R.id.btnBackAdd)
         edtTask = findViewById(R.id.edtAddTask)
         btnAdd = findViewById(R.id.btnSaveAdd)
