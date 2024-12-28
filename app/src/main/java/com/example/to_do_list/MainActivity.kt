@@ -2,6 +2,7 @@ package com.example.to_do_list
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -33,7 +34,13 @@ class MainActivity : AppCompatActivity() {
         database = FirebaseDatabase.getInstance().getReference("AddTask")
         showTask = findViewById(R.id.Show_task)
         showTask.layoutManager = LinearLayoutManager(this)
-        adapter = Todo_Adapter(taskList)
+        adapter = Todo_Adapter(taskList) { task ->
+            val intent = Intent(this, Edit_page::class.java)
+            intent.putExtra("taskId", task.id)
+            intent.putExtra("taskName", task.task)
+            intent.putExtra("taskTime", task.Time)
+            startActivity(intent)
+        }
         showTask.adapter = adapter
 
         database.addValueEventListener(object : ValueEventListener {
@@ -50,6 +57,7 @@ class MainActivity : AppCompatActivity() {
 
             override fun onCancelled(error: DatabaseError) {
                 // จัดการข้อผิดพลาด
+                Log.e("Firebase", "Error: ${error.message}")
             }
         })
 

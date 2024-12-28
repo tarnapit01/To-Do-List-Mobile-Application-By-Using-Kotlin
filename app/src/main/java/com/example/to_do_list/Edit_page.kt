@@ -9,6 +9,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.example.to_do_list.database_model.ToDo_Model
+import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 
 class Edit_page : AppCompatActivity() {
@@ -17,11 +19,29 @@ class Edit_page : AppCompatActivity() {
     private lateinit var btnUpdate: Button
     private lateinit var btnDelete: Button
     private lateinit var btnBack : Button
-    private lateinit var taskId: String
+    private lateinit var database: DatabaseReference
+    private lateinit var btnDone : Button
+
+    private var taskId: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_edit_page)
+
+        // เชื่อมโยง View
+        init()
+
+        // ดึงข้อมูลจาก Intent
+        taskId = intent.getStringExtra("taskId")
+        val taskName = intent.getStringExtra("taskName")
+        val taskTime = intent.getStringExtra("taskTime")
+
+        // แสดงข้อมูลใน EditText
+        editTaskName.setText(taskName)
+        editTaskTime.setText(taskTime)
+
+        // อ้างอิงฐานข้อมูล Firebase
+        database = FirebaseDatabase.getInstance().getReference("AddTask")
 
         btnBack.setOnClickListener {
             var intent = Intent(this, MainActivity::class.java)
@@ -29,60 +49,71 @@ class Edit_page : AppCompatActivity() {
             finish()
         }
 
-        init()
-
-        taskId = intent.getStringExtra("taskId") ?: ""
-
-
-        // Update button functionality
+        // ปุ่มอัปเดตข้อมูล
         btnUpdate.setOnClickListener {
-            val updatedName = editTaskName.text.toString()
-            val updatedTime = editTaskTime.text.toString()
-            updateTaskInFirebase(taskId, updatedName, updatedTime)
+            updateTask()
+            var intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
+            finish()
         }
 
-        // Delete button functionality
+        // ปุ่มลบข้อมูล
         btnDelete.setOnClickListener {
-            deleteTaskFromFirebase(taskId)
-        }
+            deleteTask()
+            var intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
+            finish()
         }
 
-    private fun init(){
-        editTaskTime = findViewById(R.id.Edit_Time_Edit)
+        btnDone.setOnClickListener {
+            deleteTask()
+            var intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
+            finish()
+        }
+    }
+    // ฟังชันก์เชื่อมโยง View
+    fun init(){
+        // เชื่อมโยง View
         editTaskName = findViewById(R.id.edtEditTask)
+        editTaskTime = findViewById(R.id.Edit_Time_Edit)
         btnUpdate = findViewById(R.id.btnSaveEdit)
         btnDelete = findViewById(R.id.btnDaleteEdit)
         btnBack = findViewById(R.id.btnBackEdit)
-
+        btnDone = findViewById(R.id.btnDone)
     }
 
-    private fun updateTaskInFirebase(taskId: String, name: String, time: String) {
-        val databaseRef = FirebaseDatabase.getInstance().getReference("AddTask").child(taskId)
-        val taskUpdates = mapOf<String, Any>(
-            "Addtask" to name,
-            "AddTime" to time
-        )
+    private fun updateTask() {
+        val updatedName = editTaskName.text.toString().trim()
+        val updatedTime = editTaskTime.text.toString().trim()
 
-        databaseRef.updateChildren(taskUpdates).addOnCompleteListener {
-            if (it.isSuccessful) {
-                Toast.makeText(this, "Task updated successfully", Toast.LENGTH_SHORT).show()
-                finish() // Go back to MainActivity
-            } else {
-                Toast.makeText(this, "Failed to update task", Toast.LENGTH_SHORT).show()
-            }
+        if (taskId != null && updatedName.isNotEmpty() && updatedTime.isNotEmpty()) {
+            val updatedTask = ToDo_Model(taskId!!, updatedName, updatedTime)
+            database.child(taskId!!).setValue(updatedTask)
+                .addOnSuccessListener {
+                    Toast.makeText(this, "Task updated successfully!", Toast.LENGTH_SHORT).show()
+                    finish()
+                }
+                .addOnFailureListener {
+                    Toast.makeText(this, "Failed to update task.", Toast.LENGTH_SHORT).show()
+                }
+        } else {
+            Toast.makeText(this, "Please fill out all fields.", Toast.LENGTH_SHORT).show()
         }
     }
 
-    private fun deleteTaskFromFirebase(taskId: String) {
-        val databaseRef = FirebaseDatabase.getInstance().getReference("AddTask").child(taskId)
-
-        databaseRef.removeValue().addOnCompleteListener {
-            if (it.isSuccessful) {
-                Toast.makeText(this, "Task deleted successfully", Toast.LENGTH_SHORT).show()
-                finish() // Go back to MainActivity
-            } else {
-                Toast.makeText(this, "Failed to delete task", Toast.LENGTH_SHORT).show()
-            }
+    private fun deleteTask() {
+        if (taskId != null) {
+            database.child(taskId!!).removeValue()
+                .addOnSuccessListener {
+                    Toast.makeText(this, "Task deleted successfully!", Toast.LENGTH_SHORT).show()
+                    finish()
+                }
+                .addOnFailureListener {
+                    Toast.makeText(this, "Failed to delete task.", Toast.LENGTH_SHORT).show()
+                }
+        } else {
+            Toast.makeText(this, "Task ID is null, cannot delete.", Toast.LENGTH_SHORT).show()
         }
     }
 
