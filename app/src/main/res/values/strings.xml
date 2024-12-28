@@ -1,5 +1,9 @@
 <resources>
     <string name="app_name">to_do_list</string>
     <string name="btn_add">This is A add button</string>
-
+    <string-array name="btnCategory">
+        <item>All</item>
+        <item>Work</item>
+        <item>Personal</item>
+    </string-array>
 </resources>

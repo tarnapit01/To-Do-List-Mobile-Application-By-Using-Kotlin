@@ -14,7 +14,7 @@ import com.example.to_do_list.R
 import com.example.to_do_list.database_model.ToDo_Model
 
 
-class Todo_Adapter (private val itemList: List<ToDo_Model>,  private val onItemClick: (ToDo_Model) -> Unit
+class Todo_Adapter (private var itemList: List<ToDo_Model>, private val onItemClick: (ToDo_Model) -> Unit
 ) : RecyclerView.Adapter<Todo_Adapter.TodoViewHolder>(){
 
 
@@ -43,8 +43,11 @@ class Todo_Adapter (private val itemList: List<ToDo_Model>,  private val onItemC
         holder.itemView.setOnClickListener{
             onItemClick(task)
         }
+    }
 
-
+    fun updateList(newList: List<ToDo_Model>) {
+        itemList = newList
+        notifyDataSetChanged()
     }
 
 }

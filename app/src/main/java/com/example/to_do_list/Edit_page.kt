@@ -2,8 +2,10 @@ package com.example.to_do_list
 
 import android.content.Intent
 import android.os.Bundle
+import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
+import android.widget.Spinner
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -21,7 +23,7 @@ class Edit_page : AppCompatActivity() {
     private lateinit var btnBack : Button
     private lateinit var database: DatabaseReference
     private lateinit var btnDone : Button
-
+    private lateinit var btnCategory_edit : Spinner
     private var taskId: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,10 +37,12 @@ class Edit_page : AppCompatActivity() {
         taskId = intent.getStringExtra("taskId")
         val taskName = intent.getStringExtra("taskName")
         val taskTime = intent.getStringExtra("taskTime")
+//        val category = intent.getStringExtra("Category")
 
         // แสดงข้อมูลใน EditText
         editTaskName.setText(taskName)
         editTaskTime.setText(taskTime)
+
 
         // อ้างอิงฐานข้อมูล Firebase
         database = FirebaseDatabase.getInstance().getReference("AddTask")
@@ -71,6 +75,12 @@ class Edit_page : AppCompatActivity() {
             startActivity(intent)
             finish()
         }
+
+        // Setting up Spinner with categories
+        val categories = arrayOf("All", "Work", "Personal") // Categories to choose from
+        val arrayAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, categories)
+        btnCategory_edit.adapter = arrayAdapter
+
     }
     // ฟังชันก์เชื่อมโยง View
     fun init(){
@@ -81,14 +91,15 @@ class Edit_page : AppCompatActivity() {
         btnDelete = findViewById(R.id.btnDaleteEdit)
         btnBack = findViewById(R.id.btnBackEdit)
         btnDone = findViewById(R.id.btnDone)
+        btnCategory_edit = findViewById(R.id.btnCategory_edit)
     }
 
     private fun updateTask() {
         val updatedName = editTaskName.text.toString().trim()
         val updatedTime = editTaskTime.text.toString().trim()
-
-        if (taskId != null && updatedName.isNotEmpty() && updatedTime.isNotEmpty()) {
-            val updatedTask = ToDo_Model(taskId!!, updatedName, updatedTime)
+        val updateCategory = btnCategory_edit.selectedItem.toString().trim()
+        if (taskId != null && updatedName.isNotEmpty() && updatedTime.isNotEmpty() && updateCategory.isNotEmpty()) {
+            val updatedTask = ToDo_Model(taskId!!, updatedName, updatedTime,updateCategory)
             database.child(taskId!!).setValue(updatedTask)
                 .addOnSuccessListener {
                     Toast.makeText(this, "Task updated successfully!", Toast.LENGTH_SHORT).show()

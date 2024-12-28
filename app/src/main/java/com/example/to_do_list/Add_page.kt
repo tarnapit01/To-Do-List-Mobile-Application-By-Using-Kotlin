@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.ArrayAdapter
+
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Spinner
@@ -25,6 +26,8 @@ class Add_page : AppCompatActivity() {
     private var btnAdd : Button? = null
     private var database : DatabaseReference? = null
     private var edtTime : EditText? = null
+    private var btnCategory : Spinner? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_page)
@@ -44,6 +47,11 @@ class Add_page : AppCompatActivity() {
             finish()
         }
 
+        // Setting up Spinner with categories
+        val categories = arrayOf("All", "Work", "Personal") // Categories to choose from
+        val arrayAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, categories)
+        btnCategory!!.adapter = arrayAdapter
+
 
 
 
@@ -55,6 +63,7 @@ class Add_page : AppCompatActivity() {
     private fun insertTask(){
         val taskDes = edtTask!!.text.toString()
         val time = edtTime!!.text.toString()
+        val category = btnCategory!!.selectedItem.toString()
 
         if (taskDes.isEmpty()){
             edtTask!!.error = ("Please input task")
@@ -64,7 +73,7 @@ class Add_page : AppCompatActivity() {
         }
 
         val taskId = database?.push()?.key
-        val task = ToDo_Model(id = taskId,task = taskDes,Time = time)
+        val task = ToDo_Model(id = taskId,task = taskDes,Time = time,Category = category)
 
         taskId?.let { database!!.child(it).setValue(task)
             .addOnCompleteListener{
@@ -80,5 +89,6 @@ class Add_page : AppCompatActivity() {
         edtTask = findViewById(R.id.edtAddTask)
         btnAdd = findViewById(R.id.btnSaveAdd)
         edtTime = findViewById(R.id.Edit_Time_Add)
+        btnCategory = findViewById(R.id.btnCategory)
     }
     }
